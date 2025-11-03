@@ -135,6 +135,21 @@ CREATE INDEX idx_comments_user_id ON public.comments(user_id);
 CREATE INDEX idx_comments_created_at ON public.comments(created_at DESC);
 
 -- ============================================
+-- ATTACHMENTS TABLE
+-- ============================================
+CREATE TABLE public.attachments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  task_id UUID NOT NULL REFERENCES public.tasks(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL,
+  file_url TEXT NOT NULL,
+  file_type TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_attachments_task_id ON public.attachments(task_id);
+
+-- ============================================
 -- TIME LOGS TABLE
 -- ============================================
 CREATE TABLE public.time_logs (
@@ -287,6 +302,7 @@ ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.time_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
@@ -367,3 +383,49 @@ USING (
 CREATE POLICY "Users can view own notifications"
 ON public.notifications FOR SELECT
 USING (user_id = auth.uid());
+
+-- Policies for comments
+CREATE POLICY "Users can view comments in accessible tasks"
+ON public.comments FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM public.tasks t
+    JOIN public.projects p ON t.project_id = p.id
+    JOIN public.team_members tm ON p.team_id = tm.team_id
+    WHERE t.id = comments.task_id AND tm.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can create comments in accessible tasks"
+ON public.comments FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.tasks t
+    JOIN public.projects p ON t.project_id = p.id
+    JOIN public.team_members tm ON p.team_id = tm.team_id
+    WHERE t.id = comments.task_id AND tm.user_id = auth.uid()
+  )
+);
+
+-- Policies for attachments
+CREATE POLICY "Users can view attachments in accessible tasks"
+ON public.attachments FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM public.tasks t
+    JOIN public.projects p ON t.project_id = p.id
+    JOIN public.team_members tm ON p.team_id = tm.team_id
+    WHERE t.id = attachments.task_id AND tm.user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Users can create attachments in accessible tasks"
+ON public.attachments FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.tasks t
+    JOIN public.projects p ON t.project_id = p.id
+    JOIN public.team_members tm ON p.team_id = tm.team_id
+    WHERE t.id = attachments.task_id AND tm.user_id = auth.uid()
+  )
+);

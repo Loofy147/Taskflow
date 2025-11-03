@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { activityLogService } from './activityLogService';
 
 export const taskService = {
   async createTask(title: string, description: string | undefined, projectId: string, createdBy: string, assigneeId: string | undefined, status: string, priority: string) {
@@ -6,6 +7,17 @@ export const taskService = {
     if (error) {
       throw error;
     }
+
+    const { data: projectData } = await supabase.from('projects').select('team_id').eq('id', projectId).single();
+    if (projectData) {
+      await activityLogService.logActivity({
+        team_id: projectData.team_id,
+        action: 'created_task',
+        entity_type: 'task',
+        entity_id: data[0].id,
+      });
+    }
+
     return data[0];
   },
 

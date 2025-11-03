@@ -10,6 +10,8 @@ import { TeamPage } from "./pages/TeamPage";
 import { CreateProjectPage } from "./pages/CreateProjectPage";
 import { ProjectPage } from "./pages/ProjectPage";
 import { SearchPage } from "./pages/SearchPage";
+import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/create-project" element={<CreateProjectPage />} />
             <Route path="/project/:projectId" element={<ProjectPage />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Route>
       </Routes>

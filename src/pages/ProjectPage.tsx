@@ -7,10 +7,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import { ITask } from "@/types";
+import { TaskDetailsModal } from "@/components/tasks/TaskDetailsModal";
 
 export function ProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const [view, setView] = useState("list");
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
@@ -36,6 +39,14 @@ export function ProjectPage() {
     };
   }, [projectId, queryClient]);
 
+  const handleTaskClick = (task: ITask) => {
+    setSelectedTask(task);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedTask(null);
+  };
+
   if (!projectId) {
     return <div>Project not found</div>;
   }
@@ -57,11 +68,18 @@ export function ProjectPage() {
         {isLoading ? (
           <p>Loading tasks...</p>
         ) : view === "list" ? (
-          <TaskList tasks={tasks || []} />
+          <TaskList tasks={tasks || []} onTaskClick={handleTaskClick} />
         ) : (
-          <KanbanBoard tasks={tasks || []} />
+          <KanbanBoard tasks={tasks || []} onTaskClick={handleTaskClick} />
         )}
       </div>
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          isOpen={!!selectedTask}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }

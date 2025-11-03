@@ -9,8 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ITask } from "@/types";
 
-export function TaskList({ tasks }: { tasks: any[] }) {
+interface TaskListProps {
+  tasks: ITask[];
+  onTaskClick: (task: ITask) => void;
+}
+
+export function TaskList({ tasks, onTaskClick }: TaskListProps) {
   const queryClient = useQueryClient();
 
   const deleteTaskMutation = useMutation({
@@ -30,7 +36,7 @@ export function TaskList({ tasks }: { tasks: any[] }) {
   return (
     <div className="grid gap-4">
       {tasks.map((task) => (
-        <Card key={task.id}>
+        <Card key={task.id} onClick={() => onTaskClick(task)} className="cursor-pointer">
           <CardHeader>
             <CardTitle>{task.title}</CardTitle>
           </CardHeader>
@@ -45,7 +51,7 @@ export function TaskList({ tasks }: { tasks: any[] }) {
                   Priority: {task.priority}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                 <Select
                   value={task.status}
                   onValueChange={(status) => updateTaskStatusMutation.mutate({ taskId: task.id, status })}

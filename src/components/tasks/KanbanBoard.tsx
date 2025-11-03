@@ -2,8 +2,14 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { taskService } from "@/services/api/taskService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ITask } from "@/types";
 
-export function KanbanBoard({ tasks }: { tasks: any[] }) {
+interface KanbanBoardProps {
+  tasks: ITask[];
+  onTaskClick: (task: ITask) => void;
+}
+
+export function KanbanBoard({ tasks, onTaskClick }: KanbanBoardProps) {
   const queryClient = useQueryClient();
 
   const updateTaskStatusMutation = useMutation({
@@ -65,6 +71,7 @@ export function KanbanBoard({ tasks }: { tasks: any[] }) {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         className="mb-4"
+                        onClick={() => onTaskClick(item)}
                       >
                         <Card>
                           <CardHeader>
