@@ -5,6 +5,11 @@ import { PasswordResetPage } from "./pages/PasswordResetPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { MainLayout } from "./layouts/MainLayout";
 import { ProtectedRoute } from "./router/ProtectedRoute";
+import { CreateTeamPage } from "./pages/CreateTeamPage";
+import { TeamPage } from "./pages/TeamPage";
+import { CreateProjectPage } from "./pages/CreateProjectPage";
+import { ProjectPage } from "./pages/ProjectPage";
+import { SearchPage } from "./pages/SearchPage";
 
 function App() {
   return (
@@ -14,8 +19,13 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/reset-password" element={<PasswordResetPage />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/create-team" element={<CreateTeamPage />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<DashboardPage />} />
+            <Route path="/team" element={<TeamPage />} />
+            <Route path="/create-project" element={<CreateProjectPage />} />
+            <Route path="/project/:projectId" element={<ProjectPage />} />
+            <Route path="/search" element={<SearchPage />} />
           </Route>
         </Route>
       </Routes>
